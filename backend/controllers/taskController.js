@@ -49,7 +49,8 @@ export const completeTask=async(req,res)=>{
             return res.status(400).json({message:"Task is already completed"});
         }
 
-        const previousTask=await Task.findOne({
+       if(task.order>1){
+         const previousTask=await Task.findOne({
             workflow:task.workflow,
             order:task.order-1
         })
@@ -57,6 +58,7 @@ export const completeTask=async(req,res)=>{
         if(!previousTask || previousTask.status!=="complete"){
             return res.status(400).json({message:"Previous task is not completed"});
         }
+       }
         task.status="complete";
         task.completedAt=new Date();
         await task.save();
