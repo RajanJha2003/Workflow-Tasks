@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/userRoute.js';
+import workflowRouter from './routes/workflowRoute.js';
 
 
 dotenv.config();
@@ -25,6 +26,8 @@ connectDB();
 
 
 app.use("/api/user",userRouter)
+
+app.use("/api/workflow",workflowRouter)
 
 
 
