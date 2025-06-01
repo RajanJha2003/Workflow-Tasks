@@ -1,19 +1,17 @@
 import React from 'react'
 import { useContext } from 'react'
-import { authDatacContext } from '../context/AuthContext'
+import { authDataContext } from '../context/AuthContext'
 import { Navigate } from 'react-router-dom';
 
-const PublicRoute = () => {
+const PublicRoute = ({children}) => {
 
-    const {userData}=useContext(authDatacContext);
+    const {userData}=useContext(authDataContext);
 
 
     if(userData){
-        <Navigate to={"/"} />
+       return <Navigate to={"/"} />
     }
-  return (
-    <div>PublicRoute</div>
-  )
+  return children;
 }
 
 export default PublicRoute
