@@ -12,6 +12,6 @@ userRouter.get("/current-user",isAuth,currentUser)
 
 userRouter.get("/logout",isAuth,logout);
 
-userRouter.get("/all-users",isAdmin,isAdmin,getAllUsers)
+userRouter.get("/all-users",isAuth,isAdmin,getAllUsers)
 
 export default userRouter;
