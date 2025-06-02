@@ -1,55 +1,9 @@
 import Task from "../models/taskModel.js";
 import Workflow from "../models/workflowModel.js";
-import { assignTaskToManager } from "../utils/taskUtils.js";
+import { assignTaskByRole } from "../utils/taskUtils.js";
 
 
 
-// export const assignTask=async(req,res)=>{
-//     try {
-//         const {assigneeId,taskId}=req.body;
-//         if(!assigneeId || !taskId){
-//             return res.status(400).json({message:"Assignee ID and Task ID are required"});
-//         }
-
-//         const task=await Task.findById(taskId);
-//         if(!task){
-//             return res.status(404).json({message:"Task not found"});
-//         }
-//         if(task.status!=="pending"){
-//             return res.status(400).json({message:"Task is already  completed"});
-//         }
-
-//         const managers=await User.find({role:"manager"});
-
-//         if(!managers || managers.length===0){
-//             return res.status(404).json({message:"No managers found to assign task"});
-//         }
-
-//         let selectedManager=null;
-//         let minTasks=Infinity;
-
-//         for(const manager of managers){
-
-//             const taskCount=await Task.countDocuments({assignee:manager._id, status:"pending"});
-//             if(taskCount < minTasks){
-//                 minTasks=taskCount;
-//                 selectedManager=manager;
-//             }
-
-
-//         }
-
-//         task.assignee=selectedManager._id;
-//         await task.save();
-//         res.status(200).json({message:"Task assigned successfully",task});
-        
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: "Internal Server Error" });
-        
-//     }
-
-// }
 
 
 export const completeTask=async(req,res)=>{
@@ -94,13 +48,14 @@ export const completeTask=async(req,res)=>{
             const newTask=new Task({
                 workflow:task.workflow,
                 name:nextTask.name,
-                order:task.order+1
+                order:task.order+1,
+                role:nextTask.role
             });
             await newTask.save();
 
             const freshTask=await Task.findById(newTask._id);
 
-            await assignTaskToManager(freshTask);
+          await assignTaskByRole(freshTask, freshTask.role);
 
             res.status(200).json({message:"Task completed successfully",task:newTask});
         }else{

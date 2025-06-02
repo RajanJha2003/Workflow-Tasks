@@ -3,15 +3,15 @@ import axios from "axios";
 import { authDataContext } from "../context/AuthContext";
 
 const Home = () => {
-  const { userData,setUserData } = useContext(authDataContext);
+  const { userData, setUserData } = useContext(authDataContext);
   const isAdmin = userData?.role === "admin";
 
-  
 
-  
+
+
 
   const [showModal, setShowModal] = useState(false);
-  const [workflowTasks, setWorkflowTasks] = useState([""]);
+  const [workflowTasks, setWorkflowTasks] = useState([{ name: "", role: "" }]);
   const [workflowName, setWorkflowName] = useState("");
   const [workflows, setWorkflows] = useState([]);
   const [taskMap, setTaskMap] = useState({});
@@ -20,19 +20,19 @@ const Home = () => {
   const [myTasks, setMyTasks] = useState([]);
 
   useEffect(() => {
-  const fetchUserData = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/user/current-user", { withCredentials: true });
-      setUserData(res.data.user);
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
-    }
-  };
+    const fetchUserData = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/user/current-user", { withCredentials: true });
+        setUserData(res.data.user);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
 
-  fetchUserData();
-}, []);
+    fetchUserData();
+  }, []);
 
-  
+
   const fetchWorkflows = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/workflow/workflows/my", {
@@ -87,13 +87,16 @@ const Home = () => {
   }, [isAdmin]);
 
   const handleAddTask = () => {
-    setWorkflowTasks([...workflowTasks, ""]);
+    setWorkflowTasks((prev) => [...prev, { name: "", role: "" }]);
   };
 
-  const handleChangeTask = (i, value) => {
-    const updatedTasks = [...workflowTasks];
-    updatedTasks[i] = value;
-    setWorkflowTasks(updatedTasks);
+  // Handle change in task name or role input
+  const handleChangeTask = (index, field, value) => {
+    setWorkflowTasks((prev) => {
+      const newTasks = [...prev];
+      newTasks[index][field] = value;
+      return newTasks;
+    });
   };
 
   const handleCreateWorkflow = async () => {
@@ -104,7 +107,7 @@ const Home = () => {
         { withCredentials: true }
       );
       setShowModal(false);
-      setWorkflowTasks([""]);
+      setWorkflowTasks([{ name: "", role: "" }]);
       setWorkflowName("");
       fetchWorkflows();
     } catch (error) {
@@ -133,7 +136,7 @@ const Home = () => {
     setViewTasks((prev) => ({ ...prev, [workflowId]: !isVisible }));
   };
 
-  const handleAssignUser  = async (workflowId, taskId, userId) => {
+  const handleAssignUser = async (workflowId, taskId, userId) => {
     try {
       await axios.post(
         "http://localhost:5000/api/tasks/tasks/assign",
@@ -168,18 +171,18 @@ const Home = () => {
       complete: "bg-green-100 text-green-800 border-green-200",
       default: "bg-gray-100 text-gray-800 border-gray-200"
     };
-   
+
     return `px-3 py-1 rounded-full text-sm font-medium border ${statusStyles[status] || statusStyles.default}`;
   };
 
 
-   const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
       await axios.get("http://localhost:5000/api/user/logout", { withCredentials: true });
-      setUserData(null); 
+      setUserData(null);
     } catch (error) {
       console.error("Logout failed:", error.response?.data?.message || error.message);
-    }  
+    }
   };
 
   return (
@@ -293,7 +296,7 @@ const Home = () => {
                                             <select
                                               className="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                               onChange={(e) =>
-                                                handleAssignUser (workflow._id, task._id, e.target.value)
+                                                handleAssignUser(workflow._id, task._id, e.target.value)
                                               }
                                               defaultValue=""
                                             >
@@ -391,19 +394,35 @@ const Home = () => {
                     value={workflowName}
                     onChange={(e) => setWorkflowName(e.target.value)}
                   />
+
                 </div>
-               
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Tasks</label>
                   <div className="space-y-2 max-h-60 overflow-y-auto">
                     {workflowTasks.map((task, i) => (
-                      <input
-                        key={i}
-                        placeholder={`Task ${i + 1}`}
-                        value={task}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        onChange={(e) => handleChangeTask(i, e.target.value)}
-                      />
+                      <div key={i}>
+                        <input
+
+                          placeholder={"Task Name"}
+                          value={task.name}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onChange={(e) => handleChangeTask(i, "name", e.target.value)}
+                        />
+                        <select
+                          value={task.role}
+                          onChange={(e) => handleChangeTask(i, "role", e.target.value)}
+                          className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
+                        >
+                          <option value="">Select Role</option>
+                          <option value="admin">Admin</option>
+                          <option value="manager">Manager</option>
+                          <option value="worker">Worker</option>
+                        </select>
+
+
+                      </div>
+
                     ))}
                   </div>
                   <button
@@ -414,7 +433,7 @@ const Home = () => {
                   </button>
                 </div>
               </div>
-             
+
               <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
                 <button
                   onClick={() => setShowModal(false)}
