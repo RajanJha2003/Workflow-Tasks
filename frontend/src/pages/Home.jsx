@@ -404,7 +404,7 @@ const Home = () => {
                       <div key={i}>
                         <input
 
-                          placeholder={"Task Name"}
+                          placeholder={`Task${i+1} name`}
                           value={task.name}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           onChange={(e) => handleChangeTask(i, "name", e.target.value)}
@@ -414,7 +414,7 @@ const Home = () => {
                           onChange={(e) => handleChangeTask(i, "role", e.target.value)}
                           className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
                         >
-                          <option value="">Select Role</option>
+                          <option value="">Select Role for {task.name}</option>
                           <option value="admin">Admin</option>
                           <option value="manager">Manager</option>
                           <option value="worker">Worker</option>
