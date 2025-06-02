@@ -51,7 +51,6 @@ export const login = async (req, res) => {
     if(!comparePassword){
       return res.status(409).json({ message: "Invalid Credentials" });
     }
-    console.log(user);
     
 
     const token=await jwt.sign({userId:user._id,userRole:user.role},process.env.JWT_SECRET,{expiresIn:"1d"});
@@ -73,7 +72,7 @@ export const login = async (req, res) => {
 
 export const currentUser=async(req,res)=>{
   try {
-    const id=req.userId;
+    
     const user=await User.findById(req.userId);
     if(!user){
       return res.status(404).json({message:"User not found"});
