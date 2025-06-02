@@ -1,5 +1,6 @@
 import Task from "../models/taskModel.js";
 import Workflow from "../models/workflowModel.js";
+import { assignTaskToManager } from "../utils/taskUtils.js";
 
 
 export const createWorkflow = async (req, res) => {
@@ -56,6 +57,8 @@ export const startWorkflow=async(req,res)=>{
             order:1
         })
         await task.save();
+
+        await assignTaskToManager(task);
         workflow.status="start";
         await workflow.save();
         res.status(200).json({message:"Workflow started successfully",task});
